@@ -1,12 +1,14 @@
-import React from "react";
+import React, {useState} from "react";
 import Navbar from "../components/Navbar";
 import styled from "styled-components";
 import AddOutlinedIcon from '@mui/icons-material/AddOutlined';
 import RemoveOutlinedIcon from '@mui/icons-material/RemoveOutlined';
 import { useDispatch } from 'react-redux'
-import { increment } from "../features/counter/counter";
+import { addToList } from "../features/cart/cartList";
 import { useLocation } from "react-router-dom";
+import { createBrowserHistory } from "history";
 
+let history = createBrowserHistory();
 
 const Container = styled.div`
 
@@ -70,10 +72,20 @@ const Button = styled.button`
         background-color: #f8f4f4;
     }
 `
+
+
 const Product = () => {
-    const dispatch = useDispatch()
+    const dispatch = useDispatch();
     const location = useLocation();
-    const item = location.state
+    const item = location.state;
+    const [counter, setCounter] = useState(0);
+
+    const dispatching = () => {
+        if(counter > 0){
+            dispatch(addToList(Object.assign(item, {"quantity": counter})))
+        }
+    }
+    
     return(
         <Container>
             <Navbar />
@@ -87,11 +99,12 @@ const Product = () => {
                     <Price>${item.price}</Price>
                     <AddContainer>
                         <AmountContainer>
-                            <AddOutlinedIcon />
-                            <Amount></Amount>
-                            <RemoveOutlinedIcon />
+                            <RemoveOutlinedIcon onClick={() => setCounter((counter > 0) ? counter - 1 : 0)}/>
+                            <Amount>{counter}</Amount>
+                            <AddOutlinedIcon onClick={() => setCounter(counter + 1)}/>
                         </AmountContainer>
-                        <Button onClick={() => dispatch(increment()) }>ADD TO CART</Button>
+                        <Button onClick={() => {dispatching()}}>ADD TO CART</Button>
+                        <Button onClick={() => history.back()}>BACK</Button>
                     </AddContainer>
                 </InfoContainer>
             </Wrapper>
